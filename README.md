@@ -83,15 +83,15 @@ BiliPauseAdBlock: hooks installed
 
 ## 重新适配新版本
 
-工作区 `_tmp/analysis/` 里留下了这次用的分析脚本：
+这次定位开关用了两个自写的轻量脚本（仅本地分析用，未随仓库发布）：
 
 ```bash
 python dexinfo.py    <apk> <类名片段> [输出]   # 列出类的方法/字段签名
 python methodgrep.py <apk> <方法名片段> [输出] # 全 dex 搜方法声明与引用
 ```
 
-配合 `D:\Program\Android\SDK\build-tools\36.0.0\dexdump.exe -d <dex>` 可直接看 smali，
-重点找 `dd_ad_pausedpage_enable` 这个字符串的 `const-string` 引用点，
+再配合 Android SDK 自带的 `dexdump -d <dex>` 看 smali，重点找
+`dd_ad_pausedpage_enable` 这个字符串的 `const-string` 引用点，
 顺着就能定位新版本的总开关 getter，然后改 `MainHook.java` 顶部的常量。
 
 ## 构建
