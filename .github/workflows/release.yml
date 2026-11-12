@@ -1,0 +1,34 @@
+name: Release APK
+
+# 这个模块是手工 javac/d8/aapt2 构建，Linux runner 编不了；
+# CI 只负责在推送版本 tag 时，把仓库里已签好名的 APK 挂到 Release 上。
+on:
+  push:
+    tags:
+      - '[0-9]*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify signed APK exists
+        run: |
+          set -euo pipefail
+          test -f dist/BiliPauseAdBlock-v1.0.apk
+          echo "APK: $(stat -c%s dist/BiliPauseAdBlock-v1.0.apk) bytes"
+
+      - name: Create release with APK attached
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --notes "BiliPauseAdBlock 1.0 - 屏蔽哔哩哔哩暂停视频广告" \
+            dist/BiliPauseAdBlock-v1.0.apk
